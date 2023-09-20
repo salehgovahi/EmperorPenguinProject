@@ -1,7 +1,7 @@
 [![Available_in](https://img.shields.io/badge/-Available%20in-555)]()
 [![Linux](https://img.shields.io/badge/-LINUX-blue)](https://www.debian.org/)
 
-# EmperorPenguinProject
+# Emperor Penguin Project
 ## What is in repository?
 This is a repository for EmperorPenguin's project in EmperorPenguin course at [Part Software Group](https://www.partsoftware.com/)
 ## Requirments
