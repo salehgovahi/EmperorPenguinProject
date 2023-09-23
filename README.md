@@ -231,11 +231,14 @@ These are steps that we should do in First Phase and my ways to do them :
     fi
     }
     ```
-	At first show a descripton of function doing and get user answer to do it or skip over it.  
-	This function changes root user's password from any password that is existing to Toor321 with redirecting root:Toor321 to command chpasswd. Finally check command if done successfully or not and show related massage .
-5. Installing Git :
-	```
-	function _installGit(){
+    
+    At first show a descripton of function doing and get user answer to do it or skip over it.  
+    This function changes root user's password from any password that is existing to Toor321 with redirecting root:Toor321 to command chpasswd. Finally check command if done successfully or not and show related massage .
+    
+5.  Installing Git :
+    
+    ```bash
+    function _installGit(){
     
     echo ""
     echo "Installing git from Debian repository ..."
@@ -246,27 +249,30 @@ These are steps that we should do in First Phase and my ways to do them :
     
     read -p "Do you want to continue? [Y/n] " response
     response=${response,,}
-
+    
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         sudo apt-get -y install git 2>> error.logs >/dev/null
-
+    
         if [ $? -eq 0 ]; then
             echo "Git installing done successfully!"
         else
             echo "Failed to install Git. You can see in error.logs why installing failed."
         fi
-
+    
     else
         echo "Skipping installing git package setup..."
     fi
-	}
-	```
-	At first show a descripton of function doing and get user answer to do it or skip over it.  
-	This function installs Git from repository sources with command apt-get and flag -y . Why using -y flag ? Beacuse to say yes automatically to prompts and force to install package . Finally check command if done successfully or not and show related massage .
-6. Write a script that shows all command of processes with PID less than 2000 and runned them user root :
-	```
-	function _writeProccessScript(){
+    }
+    ```
+    
+    At first show a descripton of function doing and get user answer to do it or skip over it.  
+    This function installs Git from repository sources with command apt-get and flag -y . Why using -y flag ? Beacuse to say yes automatically to prompts and force to install package . Finally check command if done successfully or not and show related massage .
+    
+6.  Write a script that shows all command of processes with PID less than 2000 and runned them user root :
+    
+    ```bash
+    function _writeProccessScript(){
     
     echo ""
     echo "Write proccess showing script . . ."
@@ -276,23 +282,24 @@ These are steps that we should do in First Phase and my ways to do them :
     
     read -p "Do you want to continue? [Y/n] " response
     response=${response,,}
-
+    
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         echo "ps -U root -o pid,command --no-headers | awk '$1<2000 {print $2}'" > ProccessScript.sh
-
+    
         if [ $? -eq 0 ]; then
             echo "Script writing done successfully!"
         else
             echo "Failed to writing script. You can see in error.logs why configuring failed."
         fi
-
+    
     else
         echo "Skipping writing proccess script ..."
     fi
-	}
-	```
-	At first show a descripton of function doing and get user answer to do it or skip over it.  
-	This function writes a script to show wanted informations with command ps with flags -U (running by root user) , -o (only show PID and command to filter easily) and --no-headers (not show normall headers of ps command)  . Finally check command if done successfully or not and show related massage .
+    }
+    ```
+    
+    At first show a descripton of function doing and get user answer to do it or skip over it.  
+    This function writes a script to show wanted informations with command ps with flags -U (running by root user) , -o (only show PID and command to filter easily) and --no-headers (not show normall headers of ps command) . Finally check command if done successfully or not and show related massage .
 	
 ![](https://partsoftware.com:5000/images/cf302d4f-6029-4605-adcc-71835e6a0ddf.jpg)
