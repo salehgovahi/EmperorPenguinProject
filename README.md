@@ -12,8 +12,6 @@ To run this script on your linux system you can easily run it with this command:
 
 ## 
 
-![Project GitHub stats](https://github-readme-stats.vercel.app/api?username=salehgovahi&show_icons=true&theme=transparent)
-
 [About project](https://github.com/SalehGovahi/EmperorPenguinProject/wiki)
 	
 ![](https://partsoftware.com:5000/images/cf302d4f-6029-4605-adcc-71835e6a0ddf.jpg)
