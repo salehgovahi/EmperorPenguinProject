@@ -328,13 +328,7 @@ function _setImgProxyUnitFile () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        pwd
-        rm -r ConfigFiles 2>> error.logs >/dev/null
-        mkdir ConfigFiles
-        cd ConfigFiles
-        wget --no-check-certificate https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/ConfigSettings/ConfigSettings/imgproxyservice.txt 2>> ../error.logs >/dev/null
-        cd ..
-        imgproxy_file="$(pwd)/ConfigFiles/imgproxyservice.txt"
+        imgproxy_file="$(pwd)/imgproxyservice.txt"
 
         if [ -f $imgproxy_file ] ; then
             
