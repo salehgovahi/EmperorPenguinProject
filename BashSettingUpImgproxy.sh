@@ -11,6 +11,9 @@ red='\033[0;31m'
 green='\033[0;32m'
 
 
+trap '_rollbackAllConfigurationsSIGINT' INT
+
+
 function _makeBackupFolder() {
     mkdir $(pwd)/Backup
 }
@@ -94,6 +97,7 @@ function _cloningImgProxy(){
 }
 
 function _rollBackCloningImgProxy(){
+    
     echo ""
     echo "Roll back cloning imgproxy ..."
     echo "After this operation, imgproxy code will be removed from its directory in your system."
@@ -135,7 +139,7 @@ function _installLibVips(){
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         if ! command -v libvips &> /dev/null; then
-            sudo apt-get install libvips-dev 2>> error.logs
+            sudo apt-get -y install libvips-dev 2>> error.logs >/dev/null
         else
             echo 'libvips is already installed.'
         fi
@@ -167,7 +171,7 @@ function _rollBackInstallingLibVips(){
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        sudo apt purge libvips-dev 2>> error.logs
+        sudo apt purge libvips-dev 2>> error.logs >/dev/null
 
         
         if [ $? -eq 0 ]; then
@@ -198,7 +202,7 @@ function _installGolangCompiler(){
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         if ! command -v go &> /dev/null; then
-            sudo apt-get -y install golang 2>> error.logs
+            sudo apt-get -y install golang 2>> error.logs >/dev/null
         else
             echo 'Golang is already installed.'
         fi
@@ -207,7 +211,7 @@ function _installGolangCompiler(){
         if [ $? -eq 0 ]; then
             echo -e "${green}Installing Golang done successfully"
             _backToDefaultColor
-            sleep 10
+            sleep 2
         else
             echo -e "${red}Failed to installing Golang. You can see in error.logs why installing failed."
             _backToDefaultColor
@@ -216,7 +220,7 @@ function _installGolangCompiler(){
     
     else
         echo "Skipping installing Golang ..."
-        sleep 10
+        sleep 2
     fi
 }
 
@@ -232,7 +236,8 @@ function _rollBackInstallingGolang(){
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        sudo apt purge golang 2>> error.logs
+        sudo apt-get -y purge golang 2>> error.logs >/dev/null
+        sudo apt-get -y autoremove
 
         
         if [ $? -eq 0 ]; then
@@ -250,6 +255,289 @@ function _rollBackInstallingGolang(){
     fi 
 }
 
+function _runningImgProxy() {
+
+    echo ""
+    echo "Running imgproxy ..."
+    echo "After this operation, imgproxy will be installed on your device ."
+    _makeLogTitle "Running imgproxy"
+
+    read -p "Do you want to continue? [Y/n] " response
+    response=${response,,} # Convert response to lowercase
+
+    if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+        
+        cd /opt/project
+        sudo CGO_LDFLAGS-ALLLOW="-s|-w" go build -o /usr/local/bin/imgproxy 2>> ${projectDirectory}.error.logs >/dev/null
+        
+        if [ -f /usr/local/bin/imgproxy ] && [ $? -eq 0 ]; then
+            echo -e "${green}Running imgproxy done successfully ."
+            cd - > /dev/null 2>&1
+            _backToDefaultColor
+        else
+            echo -e "${red}Failed to rollback running imgproxy. You can see in error.logs why rollback failed."
+            cd - > /dev/null 2>&1
+            _backToDefaultColor
+            _rollbackRunningImgProxy
+        fi
+    
+    else
+        echo "Skipping installing Golang ..."
+        sleep 2
+    fi
+}
+
+function _rollbackRunningImgProxy() {
+    echo ""
+    echo "Rollback running imgproxy ..."
+    echo "After this operation, imgproxy will be removed from your device ."
+    _makeLogTitle "Rollback running imgproxy"
+
+    read -p "Do you want to continue? [Y/n] " response
+    response=${response,,} # Convert response to lowercase
+
+    if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+        
+        sudo rm /usr/local/bin/imgproxy 2>> error.logs >/dev/null
+        
+        if [ -f /usr/local/bin/imgproxy ] ; then
+            echo -e "${green}Rollback running imgproxy done successfully ."
+            _backToDefaultColor
+            _runningImgProxy
+        else
+            echo -e "${red}Failed to rollback running imgproxy. You can see in error.logs why rollback failed."
+            _backToDefaultColor
+            exit 1
+        fi
+    
+    else
+        echo "Skipping running imgproxy rollback ..."
+        sleep 2
+    fi
+}
+
+function _setImgProxyUnitFile () {
+
+    echo ""
+    echo "Creating and setting imgproxy unit file ..."
+    echo "After this operation, imgproxy unit file will be created and set on your device ."
+    _makeLogTitle "Creating and setting imgproxy unit file"
+
+    read -p "Do you want to continue? [Y/n] " response
+    response=${response,,} # Convert response to lowercase
+
+    if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+        
+        pwd
+        rm -r ConfigFiles 2>> error.logs >/dev/null
+        mkdir ConfigFiles
+        cd ConfigFiles
+        wget --no-check-certificate https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/ConfigSettings/ConfigSettings/imgproxyservice.txt 2>> ../error.logs >/dev/null
+        cd ..
+        imgproxy_file="$(pwd)/ConfigFiles/imgproxyservice.txt"
+
+        if [ -f $imgproxy_file ] ; then
+            
+            sudo rm /etc/systemd/system/imgproxy.service 2>> error.logs >/dev/null
+            sudo mv $imgproxy_file /etc/systemd/system/imgproxy.service 2>> error.logs >/dev/null
+
+            
+            if [ -f /etc/systemd/system/imgproxy.service ] ; then
+                
+                echo -e "${green}Creating unit file done successfully."
+                
+                echo "Prepaing imgproxy service ..."
+                
+                sudo systemctl daemon-reload 2>> error.logs >/dev/null
+                sudo systemctl enable imgproxy.service 2>> error.logs >/dev/null
+                sudo systemctl start imgproxy.service 2>> error.logs >/dev/null
+
+
+                if systemctl is-enabled imgproxy && systemctl is-active imgproxy; then
+                    echo -e "${green}Imgproxy service is enabled and activated."
+                    _backToDefaultColor
+                else
+                    echo -e "${red}Imgproxy service is not enabled and activated. You can see in error.logs why service preparation failed."
+                    _backToDefaultColor
+                    _rollBackSetImgProxyUnitFile
+                fi
+                
+            else
+                echo -e "${red}Failed to create imgproxy.service file. You can see in error.logs why move failed."
+                _backToDefaultColor
+                _rollBackSetImgProxyUnitFile
+            fi
+        else
+            echo -e "${red}Failed to download imgproxyservice.txt file. You can see in error.logs why download failed."
+            _backToDefaultColor
+            _rollBackSetImgProxyUnitFile
+        fi
+    
+    else
+        echo "Skipping setting imgproxy unit file ..."
+        sleep 2
+    fi
+
+}
+
+function _rollBackSetImgProxyUnitFile () {
+    
+    echo ""
+    echo "Rollback setting imgproxy unit file..."
+    echo "After this operation, imgproxy unit will be removed from your device and imgproxy service will be stopped."
+    _makeLogTitle "Rollback running imgproxy"
+
+    read -p "Do you want to continue? [Y/n] " response
+    response=${response,,} # Convert response to lowercase
+
+    if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+        
+        sudo rm /etc/systemd/system/imgproxy.service 2>> error.logs >/dev/null
+        
+        sudo systemctl stop imgproxy.service 2>> error.logs >/dev/null
+        sudo systemctl daemon-reload 2>> error.logs >/dev/null
+
+        if [ $? -eq 0 ]; then
+            echo -e "${green}Rollback Setting imgproxy unit file done successfully ."
+            _backToDefaultColor
+            _setImgProxyUnitFile
+        else
+            echo -e "${red}Failed to rollback setting imgproxy unit file. You can see in error.logs why rollback failed."
+            _backToDefaultColor
+            exit 1
+        fi
+        
+    else
+        echo "Skipping running imgproxy rollback ..."
+        sleep 2
+    fi     
+}
+
+function _checkHealthImgproxy () {
+    
+    echo ""
+    echo "Imgproxy healthcheck ..."
+    echo "After this operation, imgproxy will be checked that it runs healthily or not."
+    _makeLogTitle "Imgproxy Healthcheck"
+
+    read -p "Do you want to continue? [Y/n] " response
+    response=${response,,} # Convert response to lowercase
+
+    if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+        
+        url=http://localhost:8080/health
+        x=$(curl -sI $url | grep HTTP | awk '{print $2}')
+        
+        if [ -z "$x" ]; then
+            echo -e "${red}Imgproxy is running not healthily."
+            _backToDefaultColor
+            sleep 2
+        else
+            if [ "$x" -eq 200 ]; then
+                echo -e "${green}Imgproxy is running healthily."
+                _backToDefaultColor
+                sleep 2
+            else
+                echo -e "${red}Imgproxy is running not healthily."
+                _backToDefaultColor
+                sleep 2
+            fi
+        fi
+    
+    else
+        echo "Skipping checking imgproxy ..."
+        sleep 2
+    fi
+}
+
+function _accessiblePort8080 () {
+
+    echo ""
+    echo "Configuring network ..."
+    echo "After this operation, port of imgproxy will be accessible from outside of device."
+    _makeLogTitle "Configuring network"
+
+    read -p "Do you want to continue? [Y/n] " response
+    response=${response,,} # Convert response to lowercase
+
+    if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+
+        if ! dpkg -s nftables >/dev/null 2>&1; then
+            echo "Nftables is not installed on your system. To continue running this script, you should install Nftables on your system."
+            read -p "Do you want to install it? [Y/n] " response
+            response=${response,,}
+
+            if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+                sudo apt-get -y install nftables 2>> error.logs >/dev/null
+
+                if [ $? -eq 0 ]; then
+                    echo -e "${green}Nftables installing done successfully!"
+                    _backToDefaultColor
+                else
+                    echo -e "${red}Failed to install Nftables. You can see in error.logs why installing failed."
+                    _backToDefaultColor
+                    exit 1
+                fi
+            fi
+        fi
+
+        sudo nft add rule inet filter input tcp dport 8080 accept
+        sudo nft list ruleset > /etc/nftables.conf
+        sudo nft -f /etc/nftables.conf
+        sudo systemctl restart nftables
+        
+        if [ $? -eq 0 ]; then
+            echo -e "${green}Configuring network done successfully"
+            _backToDefaultColor
+        else
+            echo -e "${red}Failed to configuring network. You can see in error.logs why configuring failed."
+            _rollBackAccessiblePort8080
+            _backToDefaultColor
+        fi
+    
+    else
+        echo "Skipping configuring network ..."
+    fi
+
+}
+
+function _rollBackAccessiblePort8080 () {
+    
+    echo ""
+    echo "Rollback configuring network ..."
+    echo "After this operation, your network configuration will be removed and network configuration will be set to default."
+    _makeLogTitle "Rollback configuring network ..."
+
+    read -p "Do you want to continue? [Y/n] " response
+    response=${response,,} # Convert response to lowercase
+
+    if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+        
+        echo "Removing nftables rules ..."
+
+        sudo systemctl restart nftables
+        sudo sudo nft delete rule inet filter input handle 4
+        sudo nft list ruleset > /etc/nftables.conf
+        sudo nft -f /etc/nftables.conf
+
+        if [ $? -eq 0 ]; then
+            echo -e "${green}Rollback configuring network done successfully ."
+            _backToDefaultColor
+            _accessiblePort8080
+        else
+            echo -e "${red}Failed to rollback configuring network. You can see in error.logs why rollback failed."
+            _backToDefaultColor
+            exit 1
+        fi
+        
+    else
+        echo "Skipping network configuring rollback ..."
+        sleep 2
+    fi  
+
+}
+
+
 function _rollbackAllConfigurations() {
     echo ""
     echo "Rolling back all configurations..."
@@ -261,11 +549,29 @@ function _rollbackAllConfigurations() {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        sudo rm -r /opt/project 2>> error.logs
+        sudo rm -r /opt/project 2>> error.logs >/dev/null
 
-        sudo apt purge libvips-dev 2>> error.logs
+        sudo apt-get -y purge libvips-dev 2>> error.logs >/dev/null
 
-        sudo apt purge golang 2>> error.logs
+        sudo apt-get -y purge golang 2>> error.logs >/dev/null
+        
+        sudo apt-get -y autoremove 2>> error.logs >/dev/null
+
+        sudo rm /usr/local/bin/imgproxy 2>> error.logs >/dev/null
+
+        sudo rm /etc/systemd/system/imgproxy.service 2>> error.logs >/dev/null
+        
+        sudo systemctl stop imgproxy.service 2>> error.logs >/dev/null
+        
+        sudo systemctl daemon-reload 2>> error.logs >/dev/null
+
+        sudo systemctl restart nftables 2>> error.logs >/dev/null
+        
+        sudo nft delete rule inet filter input handle 4 2>> error.logs >/dev/null
+        
+        sudo nft list ruleset > /etc/nftables.conf 2>> error.logs >/dev/null
+        
+        sudo nft -f /etc/nftables.conf 2>> error.logs >/dev/null
 
         echo -e "${green}Rollback all configurations done successfully."
         _backToDefaultColor
@@ -273,6 +579,40 @@ function _rollbackAllConfigurations() {
     else
         echo "Skipping rollback all configurations..."
     fi
+}
+
+function _rollbackAllConfigurationsSIGINT() {
+
+    echo ""
+    echo "Rolling back all configurations..."
+
+    sudo rm -r /opt/project 2>> error.logs >/dev/null
+
+    sudo apt-get -y purge libvips-dev 2>> error.logs >/dev/null
+
+    sudo apt-get -y purge golang 2>> error.logs >/dev/null
+        
+    sudo apt-get -y autoremove 2>> error.logs >/dev/null
+
+    sudo rm /usr/local/bin/imgproxy 2>> error.logs >/dev/null
+
+    sudo rm /etc/systemd/system/imgproxy.service 2>> error.logs >/dev/null
+        
+    sudo systemctl stop imgproxy.service 2>> error.logs >/dev/null
+        
+    sudo systemctl daemon-reload 2>> error.logs >/dev/null
+
+    sudo systemctl restart nftables 2>> error.logs >/dev/null
+        
+    sudo nft delete rule inet filter input handle 4 2>> error.logs >/dev/null
+        
+    sudo nft list ruleset > /etc/nftables.conf 2>> error.logs >/dev/null
+        
+    sudo nft -f /etc/nftables.conf 2>> error.logs >/dev/null
+
+    sleep 2
+    exit 1 
+
 }
 
 
@@ -284,7 +624,11 @@ actionA() {
     _cloningImgProxy
     _installLibVips
     _installGolangCompiler
-    sleep 20
+    _runningImgProxy
+    _setImgProxyUnitFile
+    _checkHealthImgproxy
+    _accessiblePort8080
+    sleep 10
     return 1
 }
 
@@ -344,5 +688,3 @@ else
     echo "This script must be run as root."
     exit 1
 fi
-
-exit 0
