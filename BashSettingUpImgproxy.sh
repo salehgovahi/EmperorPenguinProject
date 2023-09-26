@@ -328,7 +328,7 @@ function _setImgProxyUnitFile () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        imgproxy_file="$(pwd)/imgproxyservice.txt"
+        imgproxy_file="imgproxyservice.txt"
 
         if [ -f $imgproxy_file ] ; then
             
