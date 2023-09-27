@@ -563,7 +563,7 @@ function _rollbackAllConfigurations() {
         
         sudo systemctl stop imgproxy.service 2>> error.logs >/dev/null
         
-        sudo systemctl daemon-reload 2>> error.logs >/dev/null
+        sudo systemctl daemon-reload 
 
         sudo systemctl restart nftables 2>> error.logs >/dev/null
         
@@ -600,7 +600,7 @@ function _rollbackAllConfigurationsSIGINT() {
         
     sudo systemctl stop imgproxy.service 2>> error.logs >/dev/null
         
-    sudo systemctl daemon-reload 2>> error.logs >/dev/null
+    sudo systemctl daemon-reload
 
     sudo systemctl restart nftables 2>> error.logs >/dev/null
         
