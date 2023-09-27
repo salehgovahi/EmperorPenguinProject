@@ -4,7 +4,7 @@
 # Created: September 23 2023
 # Last Modified: September 23 2023
 # Description: A script for setting up imgproxy (second phase of PenguinEmperor project)
-# Usage: bash Bash(Setting up imgproxy).sh OR ./Bash(Setting up imgproxy).sh
+# Usage: bash BashSettingUpImgproxy.sh OR ./BashSettingUpImgproxy.sh
 
 red='\033[0;31m'
 
