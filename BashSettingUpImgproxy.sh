@@ -19,7 +19,7 @@ function _makeBackupFolder() {
 }
 
 function _deleteErrorLog() {
-    sudo rm error.logs
+    sudo rm error.logs >/dev/null 2>&1
 }
 
 
@@ -28,7 +28,7 @@ function _backupFile() {
 }
 
 function _makeErrorLog(){
-    sudo rm error.logs >/dev/null 2>&1 >/dev/null
+    sudo rm error.logs >/dev/null 2>&1
     sudo touch error.logs
     echo "Error happend while running script :" > error.logs
 }
