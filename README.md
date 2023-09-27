@@ -14,4 +14,4 @@ To run this script on your linux system you can easily run it with this command:
 
 [About project](https://github.com/SalehGovahi/EmperorPenguinProject/wiki)
 	
-![](https://partsoftware.com:5000/images/cf302d4f-6029-4605-adcc-71835e6a0ddf.jpg)
+![](https://cms.partsoftware.com/images/cf302d4f-6029-4605-adcc-71835e6a0ddf.jpg)
