@@ -7,6 +7,8 @@ This is a repository for EmperorPenguin's project in EmperorPenguin course at [P
 ## How to run ?
 To run this script on your linux system you can easily run it with this command:
 
+### Phase 1:
+
     
     wget -O - https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/MainScriptPhase1.sh | sudo bash
 
