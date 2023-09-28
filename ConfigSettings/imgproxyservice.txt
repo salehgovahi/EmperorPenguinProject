@@ -1,0 +1,12 @@
+[Unit]
+Description=imgproxy
+After=network.target
+   
+[Service]
+ExecStart=/usr/local/bin/imgproxy
+User=root
+Group=sudo
+Restart=always
+   
+[Install]
+WantedBy=multi-user.target
