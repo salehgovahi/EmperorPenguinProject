@@ -493,18 +493,22 @@ function _configNftable(){
 
         _backupFile /etc/nftables.conf
 
-        sudo apt-get -y install nftables 2>> error.logs >/dev/null
-        sudo systemctl stop nftables
-        sudo systemctl disable nftables
-        sudo systemctl enable nftables
-        sudo systemctl start nftables
+        sudo apt purge nftables 2>> error.logs >/dev/null
+
+        sudo apt install nftables 2>> error.logs >/dev/null
+        sudo systemctl start nftables 2>> error.logs >/dev/null
+        sudo systemctl enable nftables 2>> error.logs >/dev/null
+        sudo systemctl start nftables 2>> error.logs >/dev/null
+        sudo systemctl restart nftables 2>> error.logs >/dev/null
         sudo nft add rule inet filter input tcp dport 22 accept
         sudo nft list ruleset > /etc/nftables.conf
         sudo nft -f /etc/nftables.conf
+        sudo systemctl restart nftables 2>> error.logs >/dev/null
         sudo systemctl stop nftables
         sudo systemctl disable nftables
         sudo systemctl enable nftables
         sudo systemctl start nftables
+        sudo systemctl restart nftables 2>> error.logs >/dev/null
         
         
         if [ $? -eq 0 ]; then
