@@ -19,7 +19,6 @@ function _backToDefaultColor (){
 function _deleteSubFolders() {
     echo "Preparing requirements ..."
     sudo rm -r Backup/ >/dev/null 2>&1 
-    sudo rm -r ConfigSettings/ >/dev/null 2>&1
 }
 
 function _makeBackupFolder() {
