@@ -22,21 +22,6 @@ function _deleteSubFolders() {
     sudo rm -r ConfigSettings/ >/dev/null 2>&1
 }
 
-
-function _downloadConfigSettings() {
-    mkdir ConfigSettings
-    cd ConfigSettings
-    echo "Downloading Settings Files ..."
-    echo "" >> ../error.logs
-    echo "#-----------------------Downloading files--------------------------------#" >> ../error.logs
-    echo "" >> ../error.logs
-    wget --no-check-certificate https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/ConfigSettings/ConfigSettings/Sources.txt 2>> ../error.logs >/dev/null
-    wget --no-check-certificate https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/ConfigSettings/ConfigSettings/NetworkConfig.txt 2>> ../error.logs >/dev/null
-    wget --no-check-certificate https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/ConfigSettings/ConfigSettings/NTPConfig.txt 2>> ../error.logs >/dev/null
-    cd ..
-}
-
-
 function _makeBackupFolder() {
     mkdir $(pwd)/Backup
 }
@@ -681,7 +666,6 @@ actionA() {
     echo "Running Script ..."
     _makeErrorLog
     _deleteSubFolders
-    _downloadConfigSettings
     _makeBackupFolder
     _setRepository
     _setNTP
