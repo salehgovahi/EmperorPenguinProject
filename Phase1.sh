@@ -624,13 +624,17 @@ function _rollbackAllConfigurationsSIGINT () {
             sudo apt update 2>> error.logs >/dev/null
 
             interface_backup="$(pwd)/Backup/interfaces"
-            sudo cat "$interface_backup" | sudo tee /etc/network/interfaces 2>> error.logs >/dev/null
-            systemctl restart networking 2>> error.logs >/dev/null
-            systemctl restart NetworkManager 2>> error.logs >/dev/null
+            if [[ -f $interface_backup ]]; then
+                sudo cat "$interface_backup" | sudo tee /etc/network/interfaces 2>> error.logs >/dev/null
+                systemctl restart networking 2>> error.logs >/dev/null
+                systemctl restart NetworkManager 2>> error.logs >/dev/null
+            fi
 
-            NTP_backup="$(pwd)/Backup/ntp.conf"
-            sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf 2>> error.logs >/dev/null
-            sudo systemctl restart ntp 2>> error.logs >/dev/null
+            if [[ -f $interface_backup ]]; then
+                NTP_backup="$(pwd)/Backup/ntp.conf"
+                sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf 2>> error.logs >/dev/null
+                sudo systemctl restart ntp 2>> error.logs >/dev/null
+            fi
 
             sudo userdel -r part 2>> error.logs >/dev/null
 
