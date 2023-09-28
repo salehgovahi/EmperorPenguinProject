@@ -4,11 +4,11 @@
 # Emperor Penguin Project
 ## What is in repository?
 This is a repository for EmperorPenguin's project in EmperorPenguin course at [Part Software Group](https://www.partsoftware.com/)
-## Requirments
+## How to run ?
 To run this script on your linux system you can easily run it with this command:
 
     
-    wget -O - https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/Bash.sh | bash
+    wget -O - https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/MainScriptPhase1.sh | sudo bash
 
 ## 
 
