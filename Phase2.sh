@@ -206,9 +206,9 @@ function _installGolangCompiler(){
             wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz
             sudo tar -xvf go1.21.0.linux-amd64.tar.gz
             sudo mv go /usr/local
-            sudo echo "export PATH=\$PATH:${GO_INSTALL_DIR}/go/bin" >> ~/.profile
-	        sudo echo "export GOPATH=\$HOME/go" >> ~/.profile
-	        sudo echo "export PATH=\$PATH:\$GOPATH/bin" >> ~/.profile
+            sudo echo "export PATH=\$PATH:/usr/local/go/bin" >> ~/.profile
+	    sudo echo "export GOPATH=\$HOME/go" >> ~/.profile
+	    sudo echo "export PATH=\$PATH:\$GOPATH/bin" >> ~/.profile
         else
             echo 'Golang is already installed.'
         fi
