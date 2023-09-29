@@ -282,7 +282,8 @@ function _runningImgProxy() {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         cd /opt/project
-        sudo CGO_LDFLAGS-ALLLOW="-s|-w" go build -o /usr/local/bin/imgproxy 2>> ${projectDirectory}.error.logs >/dev/null
+        sudo CGO_LDFLAGS-ALLLOW="-s|-w" go build -o /usr/local/bin/imgproxy
+
         
         if [ -f /usr/local/bin/imgproxy ] && [ $? -eq 0 ]; then
             echo -e "${green}Running imgproxy done successfully ."
