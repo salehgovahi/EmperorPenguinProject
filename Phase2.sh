@@ -202,15 +202,13 @@ function _installGolangCompiler(){
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         if ! command -v go &> /dev/null; then
-            sudo apt-get update
             sudo rm -rf /usr/local/go
             wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz
             sudo tar -xvf go1.21.0.linux-amd64.tar.gz
             sudo mv go /usr/local
-            echo "export PATH=/usr/local/go/bin:$PATH" >> ~/.bashrc
-            echo "export GOPATH=$HOME/go" >> ~/.bashrc
-            echo "export PATH=$HOME/go/bin:$PATH" >> ~/.bashrc
-            source ~/.bashrc
+            sudo echo "export PATH=\$PATH:${GO_INSTALL_DIR}/go/bin" >> ~/.profile
+	        sudo echo "export GOPATH=\$HOME/go" >> ~/.profile
+	        sudo echo "export PATH=\$PATH:\$GOPATH/bin" >> ~/.profile
         else
             echo 'Golang is already installed.'
         fi
@@ -283,7 +281,7 @@ function _runningImgProxy() {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         cd /opt/project
-        sudo CGO_LDFLAGS-ALLLOW="-s|-w" go build -o /usr/local/bin/imgproxy
+        sudo CGO_LDFLAGS_ALLOW="-s|-w" go build -buildvcs=false -o /usr/local/bin/imgproxy
 
         
         if [ -f /usr/local/bin/imgproxy ] && [ $? -eq 0 ]; then
