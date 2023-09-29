@@ -262,11 +262,12 @@ function _rollBackInstallingGolang(){
 }
 
 function _set403DNS () {
-    cat << EOF > /etc/resolve.conf
+    sudo bash -c 'cat << EOF > /etc/resolv.conf
 nameserver 10.202.10.202
 nameserver 10.202.10.102
-EOF
+EOF'
 }
+
 
 function _runningImgProxy() {
 
