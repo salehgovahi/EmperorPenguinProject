@@ -271,10 +271,21 @@ function _makeUser(){
     response=${response,,}
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
-        
-        sudo useradd part -p secret123 -e $(date -d "+1 month" "+%Y-%m-%d") 2>> error.logs >/dev/null
-        sudo sudo chage -E $(date -d "+7 days" "+%Y-%m-%d") part 2>> error.logs >/dev/null
-        sudo usermod -aG sudo part
+
+
+        username="part"
+        password="secret123"
+        expirationDate=$(date -d "+1 month" +"%Y-%m-%d")
+        passwordExpirationDate=$(date -d "+1 week" +"%Y-%m-%d")
+
+
+        useradd -m -e "$expiration_date" -s "$(echo $SHELL)" "$username" 2>> error.logs >/dev/null
+
+        echo "$username:$password" | chpasswd 2>> error.logs >/dev/null
+
+        chage -d "$password_expiration_date" "$username" 2>> error.logs >/dev/null
+
+        usermod -aG sudo "$username" 2>> error.logs >/dev/null
 
         if [ $? -eq 0 ]; then
             echo -e "${green}Adding user done successfully"
