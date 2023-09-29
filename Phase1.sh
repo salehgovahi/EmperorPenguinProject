@@ -689,7 +689,6 @@ actionA() {
     _setNTP
     _makeUser
     _changeRootPassword
-    _installGit
     _writeProccessScript
     _configSSH
     _configNftable
