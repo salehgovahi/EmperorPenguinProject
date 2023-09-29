@@ -596,8 +596,10 @@ function _rollbackAllConfigurations() {
 
 function _rollbackAllConfigurationsSIGINT() {
 
-    echo ""
+    clear
+    echo "You sent interrupt signal to proccess"
     echo "Rolling back all configurations..."
+    _makeLogTitle "Rollback All Configurations SIGINT"
 
     sudo rm -r /opt/project 2>> error.logs >/dev/null
 
