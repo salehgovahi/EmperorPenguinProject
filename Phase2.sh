@@ -203,6 +203,7 @@ function _installGolangCompiler(){
         
         if ! command -v go &> /dev/null; then
             sudo apt-get update
+            sudo rm -rf /usr/local/go
             wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz
             sudo tar -xvf go1.21.0.linux-amd64.tar.gz
             sudo mv go /usr/local
