@@ -290,7 +290,7 @@ function _runningImgProxy() {
         
         if [ -f /usr/local/bin/imgproxy ] && [ $? -eq 0 ]; then
             echo -e "${green}Running imgproxy done successfully ."
-            cd - > /dev/null 2>&1
+            cd - > /dev/null 2>&
             _backToDefaultColor
         else
             echo -e "${red}Failed to rollback running imgproxy. You can see in error.logs why rollback failed."
@@ -346,13 +346,8 @@ function _setImgProxyUnitFile () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        pwd
-        rm -r ConfigFiles 2>> error.logs >/dev/null
-        mkdir ConfigFiles
-        cd ConfigFiles
-        wget --no-check-certificate https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/ConfigSettings/ConfigSettings/imgproxyservice.txt 2>> ../error.logs >/dev/null
-        cd ..
-        imgproxy_file="$(pwd)/ConfigFiles/imgproxyservice.txt"
+        wget --no-check-certificate https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/Phase1/ConfigSettings/imgproxyservice.txt 2>> ../error.logs >/dev/null
+        imgproxy_file="$(pwd)/imgproxyservice.txt"
 
         if [ -f $imgproxy_file ] ; then
             
