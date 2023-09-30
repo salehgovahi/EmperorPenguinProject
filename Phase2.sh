@@ -529,7 +529,7 @@ function _rollBackAccessiblePort8080 () {
         echo "Removing nftables rules ..."
 
         sudo systemctl restart nftables
-        sudo sudo nft delete rule inet filter input handle 4
+        sudo nft delete rule inet filter input handle 4
         sudo nft list ruleset > /etc/nftables.conf
         sudo nft -f /etc/nftables.conf
 
