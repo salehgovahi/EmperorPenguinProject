@@ -134,8 +134,8 @@ function _setLibvipsSources () {
     	echo "deb-src http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
 	echo "deb http://deb.debian.org/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list
  	echo "deb-src http://deb.debian.org/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list
-	sudo apt-get clean
- 	sudo apt-get update
+	sudo apt-get clean 2>> error.logs >/dev/null
+ 	sudo apt-get update 2>> error.logs >/dev/null
 }
 
 function _installLibVips(){
