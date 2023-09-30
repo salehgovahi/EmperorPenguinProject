@@ -63,6 +63,7 @@ function _cloningImgProxy(){
 
             # If the user wants to install git, install it
             if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+	    
                 sudo apt-get -y install git 2>> error.logs >/dev/null
 
                 # Check if git was successfully installed
@@ -124,6 +125,17 @@ function _rollBackCloningImgProxy(){
     else
         echo "Skipping from cloning rollback . . . "
     fi 
+}
+
+function _setLibvipsSources () {
+	echo "deb http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list
+ 	echo "deb-src http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list
+	echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
+    echo "deb-src http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
+	echo "deb http://deb.debian.org/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list
+ 	echo "deb-src http://deb.debian.org/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list
+	sudo apt-get clean 2>> error.logs ./dev/null
+ 	sudo apt-get update 2>> error.logs ./dev/null
 }
 
 function _installLibVips(){
@@ -637,6 +649,7 @@ actionA() {
     echo "Running Script ..."
     _deleteErrorLog
     _cloningImgProxy
+	_setLibvipsSources
     _installLibVips
     _set403DNS
     _installGolangCompiler
