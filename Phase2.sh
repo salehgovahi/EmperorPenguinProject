@@ -210,6 +210,10 @@ function _installGolangCompiler(){
 	    sudo su -c 'echo "export GOPATH=\$HOME/go" >> $HOME/.profile'
 	    sudo su -c 'echo "export PATH=\$PATH:\$GOPATH/bin" >> $HOME/.profile'
             sudo su -c 'source $HOME/.profile'
+	    sudo su -c 'echo "export PATH=\$PATH:/usr/local/go/bin" >> $HOME/.bashrc'
+	    sudo su -c 'echo "export GOPATH=\$HOME/go" >> $HOME/.bashrc'
+	    sudo su -c 'echo "export PATH=\$PATH:\$GOPATH/bin" >> $HOME/.bashrc'
+            sudo su -c 'source $HOME/.bashrc'
         else
             echo 'Golang is already installed.'
         fi
@@ -282,8 +286,7 @@ function _runningImgProxy() {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         cd /opt/project
-	sudo su -c 'CGO_LDFLAGS_ALLOW="-s|-w" go build -buildvcs=false -o /usr/local/bin/imgproxy'
-
+	sudo su -c 'CGO_LDFLAGS_ALLOW="-s|-w" /usr/local/go/bin/go build -buildvcs=false -o /usr/local/bin/imgproxy'
         
         if [ -f /usr/local/bin/imgproxy ] && [ $? -eq 0 ]; then
             echo -e "${green}Running imgproxy done successfully ."
