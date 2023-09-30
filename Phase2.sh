@@ -282,7 +282,7 @@ function _runningImgProxy() {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         cd /opt/project
-        sudo CGO_LDFLAGS_ALLOW="-s|-w" go build -buildvcs=false -o /usr/local/bin/imgproxy
+	CGO_LDFLAGS_ALLOW="-s|-w" go build -buildvcs=false -o /usr/local/bin/imgproxy
 
         
         if [ -f /usr/local/bin/imgproxy ] && [ $? -eq 0 ]; then
