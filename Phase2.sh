@@ -131,11 +131,11 @@ function _setLibvipsSources () {
 	echo "deb http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list
  	echo "deb-src http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list
 	echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
-    echo "deb-src http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
+    	echo "deb-src http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
 	echo "deb http://deb.debian.org/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list
  	echo "deb-src http://deb.debian.org/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list
-	sudo apt-get clean 2>> error.logs ./dev/null
- 	sudo apt-get update 2>> error.logs ./dev/null
+	sudo apt-get clean
+ 	sudo apt-get update
 }
 
 function _installLibVips(){
@@ -151,7 +151,7 @@ function _installLibVips(){
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         if ! command -v libvips &> /dev/null; then
-            sudo apt-get -y install libvips-dev 2>> error.logs >/dev/null
+            sudo apt-get -y install libvips-dev
         else
             echo 'libvips is already installed.'
         fi
