@@ -290,7 +290,7 @@ function _runningImgProxy() {
         
         if [ -f /usr/local/bin/imgproxy ] && [ $? -eq 0 ]; then
             echo -e "${green}Running imgproxy done successfully ."
-            cd - > /dev/null 2>&
+            cd - > /dev/null 2>&1
             _backToDefaultColor
         else
             echo -e "${red}Failed to rollback running imgproxy. You can see in error.logs why rollback failed."
