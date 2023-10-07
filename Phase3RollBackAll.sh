@@ -6,6 +6,24 @@
 # Description: A script for running phase 2 functions with http protocol
 # Usage: bash Phase3RollBackAll.sh OR ./Phase3RollBackAll.sh
 
+function _execute_command() {
+    local command="$@"
+    local log_file="$(pwd)/error.log"
+
+    output=$(eval "$command" 2>&1)
+
+    exit_status=$?
+    if [[ $exit_status -ne 0 ]]; then
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [ERROR] Command: $command" >> "$log_file" 2>/dev/null
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [ERROR] Error: $output" >> "$log_file" 2>/dev/null
+        return ${exit_status}
+    else
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [INFO] Command: $command" >> "$log_file" 2>/dev/null
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [INFO] Output: $output" >> "$log_file" 2>/dev/null
+        return ${exit_status}
+    fi
+}
+
 function _rollbackAllConfigurations() {
 
     clear
