@@ -158,7 +158,7 @@ function _setImgProxyUnitFile () {
 
 
             if systemctl is-enabled imgproxy && systemctl is-active imgproxy; then
-		continue
+		echo "OK"
             else
                 exit 1
             fi
