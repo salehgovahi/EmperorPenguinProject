@@ -6,7 +6,7 @@
 # Description: A script for running phase 2 functions with http protocol
 # Usage: bash Phase3RunScript.sh OR ./Phase3RunScript.sh
 
-_execute_command() {
+function _execute_command() {
     local command="$@"
     local log_file="$(pwd)/error.log"
 
