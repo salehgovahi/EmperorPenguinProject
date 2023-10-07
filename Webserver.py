@@ -39,8 +39,8 @@ def check_script():
         return Response("Script status is unknown", status=404)
 
 @app.route('/rollback/', methods=['GET'])
-def check_script():
-    threading.Thread(target=run_script).start()
+def roll_back():
+    threading.Thread(target=rollback).start()
     return Response("Rollback all configurations started", status=200)
 
 if __name__ == '__main__':
