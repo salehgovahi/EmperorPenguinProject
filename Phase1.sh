@@ -2,7 +2,7 @@
 
 # Author: Mohammad Saleh Govahi
 # Created: September 17 2023
-# Last Modified: September 18 2023
+# Last Modified: October 8 2023
 # Description: A script for first phase of PenguinEmperor project
 # Usage: bash Bash.sh OR ./Bash.sh
 
@@ -12,6 +12,26 @@ green='\033[0;32m'
 
 trap '_rollbackAllConfigurationsSIGINT' INT
 
+_execute_command() {
+    local command="$@"
+    local log_file="$(pwd)/error.log"
+
+    # Run the command and capture the output and errors
+    output=$(eval "$command" 2>&1)
+
+    # Check the exit status of the command
+    exit_status=$?
+    if [[ $exit_status -ne 0 ]]; then
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [ERROR] Command: $command" >> "$log_file" 2>/dev/null
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [ERROR] Error: $output" >> "$log_file" 2>/dev/null
+        return ${exit_status}
+    else
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [INFO] Command: $command" >> "$log_file" 2>/dev/null
+        echo "$(date +'%Y-%m-%d %H:%M:%S') [INFO] Output: $output" >> "$log_file" 2>/dev/null
+        return ${exit_status}
+    fi
+}
+
 function _backToDefaultColor (){
     tput sgr0
 }
@@ -19,6 +39,7 @@ function _backToDefaultColor (){
 function _deleteSubFolders() {
     echo "Preparing requirements ..."
     sudo rm -r Backup/ >/dev/null 2>&1 
+    sudo rm error.log >/dev/null 2>&1 
 }
 
 function _makeBackupFolder() {
@@ -30,16 +51,10 @@ function _backupFile() {
     sudo cp $1 $(pwd)/Backup
 }
 
-function _makeErrorLog(){
-    sudo rm error.logs >/dev/null 2>&1 >/dev/null
-    sudo touch error.logs
-    echo "Error happend while running script :" > error.logs
-}
-
 function _makeLogTitle(){
-    echo "" >> error.logs
-    echo "#-----------------------$1--------------------------------#" >> error.logs
-    echo "" >> error.logs
+    echo "" >> error.log
+    echo "#-----------------------$1--------------------------------#" >> error.log
+    echo "" >> error.log
 }
 
 
@@ -60,14 +75,14 @@ function _setRepository() {
         if [[ -f $repo_file ]]; then
             
             _backupFile /etc/apt/sources.list
-            cat "$repo_file" | sudo tee /etc/apt/sources.list 2>> error.logs >/dev/null
-            sudo apt update 2>> error.logs >/dev/null
+            cat "$repo_file" | sudo tee /etc/apt/sources.list
+            _execute_command 'sudo apt update'
             
             if [ $? -eq 0 ]; then
                 echo -e "${green}Setting repository done successfully"
                 _backToDefaultColor
             else
-                echo -e "${red}Failed to setting repository. You can see in error.logs why setting failed."
+                echo -e "${red}Failed to setting repository. You can see in error.log why setting failed."
                 _backToDefaultColor
                 _rollBackSettingRepository
             fi
@@ -95,15 +110,15 @@ function _rollBackSettingRepository () {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         repo_backup="$(pwd)/Backup/sources.list"
-        cat "$repo_backup" | sudo tee /etc/apt/sources.list 2>> error.logs >/dev/null
-        sudo apt update 2>> error.logs >/dev/null
+        cat "$repo_backup" | sudo tee /etc/apt/sources.list
+        _execute_command 'sudo apt update'
                 
         if [ $? -eq 0 ]; then
             echo -e "${green}Rollback setting repository done successfully"
             _backToDefaultColor
             _setRepository
         else
-            echo -e "${red}Failed to rollback setting repository. You can see in error.logs why rollback failed."
+            echo -e "${red}Failed to rollback setting repository. You can see in error.log why rollback failed."
             _backToDefaultColor
             exit 1
         fi
@@ -131,15 +146,15 @@ function _configInterface() {
         if [[ -f $dns_file ]]; then
             
             _backupFile /etc/network/interfaces
-            sudo cat "$dns_file" | sudo tee /etc/network/interfaces 2>> error.logs >/dev/null
-            systemctl restart networking 2>> error.logs >/dev/null
-            systemctl restart NetworkManager 2>> error.logs >/dev/null
+            sudo cat "$dns_file" | sudo tee /etc/network/interfaces
+            _execute_command 'sudo systemctl restart networking'
+            _execute_command 'sudo systemctl restart NetworkManager'
             
             if [ $? -eq 0 ]; then
                 echo -e "${green}Configuring network done successfully"
                 _backToDefaultColor
             else
-                echo -e "${red}Failed to configuring network. You can see in error.logs why configuring failed."
+                echo -e "${red}Failed to configuring network. You can see in error.log why configuring failed."
                 _backToDefaultColor
                 _rollBackConfiguringInterface
             fi
@@ -167,16 +182,16 @@ function _rollBackConfiguringInterface () {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         interface_backup="$(pwd)/Backup/interfaces"
-        sudo cat "$interface_backup" | sudo tee /etc/network/interfaces 2>> error.logs >/dev/null
-        systemctl restart networking 2>> error.logs >/dev/null
-        systemctl restart NetworkManager 2>> error.logs >/dev/null
+        sudo cat "$interface_backup" | sudo tee /etc/network/interfaces
+        _execute_command 'sudo systemctl restart networking'
+        _execute_command 'sudo systemctl restart NetworkManager'
                 
         if [ $? -eq 0 ]; then
             echo -e "${green}Rollback network configuring done successfully"
             _backToDefaultColor
             _configInterface
         else
-            echo -e "${red}Failed to rollback configuring network. You can see in error.logs why rollback failed."
+            echo -e "${red}Failed to rollback configuring network. You can see in error.log why rollback failed."
             _backToDefaultColor
             exit 1
         fi
@@ -204,16 +219,16 @@ function _setNTP(){
         
         if [[ -f $ntp_file ]]; then
             
-            sudo apt install ntp 2>> error.logs >/dev/null
-            _backupFile /etc/ntp.conf 2>> error.logs >/dev/null
-            cat "$ntp_file" | sudo tee /etc/ntp.conf 2>> error.logs >/dev/null
-            sudo systemctl restart ntp 2>> error.logs >/dev/null
+            _execute_command 'sudo apt install ntp'
+            _backupFile /etc/ntp.conf
+            cat "$ntp_file" | sudo tee /etc/ntp.conf
+            _execute_command 'sudo systemctl restart ntp'
 
             if [ $? -eq 0 ]; then
                 echo -e "${green}Setting NTP server done successfully"
                 _backToDefaultColor
             else
-                echo -e "${red}Failed to setting NTP server. You can see in error.logs why setting failed."
+                echo -e "${red}Failed to setting NTP server. You can see in error.log why setting failed."
                 _backToDefaultColor
                 _rollBackSettingNTP
             fi
@@ -240,15 +255,15 @@ function _rollBackSettingNTP () {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         NTP_backup="$(pwd)/Backup/ntp.conf"
-        sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf 2>> error.logs >/dev/null
-        sudo systemctl restart ntp 2>> error.logs >/dev/null
+        sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf
+        _execute_command 'sudo systemctl restart ntp'
                 
         if [ $? -eq 0 ]; then
             echo -e "${green}Rollback setting NTP server done successfully"
             _backToDefaultColor
             _setNTP
         else
-            echo -e "${red}Failed to rollback setting NTP server. You can see in error.logs why rollback failed."
+            echo -e "${red}Failed to rollback setting NTP server. You can see in error.log why rollback failed."
             _backToDefaultColor
             exit 1
         fi
@@ -279,19 +294,19 @@ function _makeUser(){
         passwordExpirationDate=$(date -d "+1 week" +"%Y-%m-%d")
 
 
-        useradd -m -e "$expiration_date" -s "$(echo $SHELL)" "$username" 2>> error.logs >/dev/null
+        _execute_command 'useradd -m -e "$expiration_date" -s "$(echo $SHELL)" "$username"'
 
-        echo "$username:$password" | chpasswd 2>> error.logs >/dev/null
+        _execute_command 'echo "$username:$password" | chpasswd'
 
-        chage -d "$password_expiration_date" "$username" 2>> error.logs >/dev/null
+        _execute_command 'chage -d "$password_expiration_date" "$username"'
 
-        usermod -aG sudo "$username" 2>> error.logs >/dev/null
+        _execute_command 'usermod -aG sudo "$username"'
 
         if [ $? -eq 0 ]; then
             echo -e "${green}Adding user done successfully"
             _backToDefaultColor
         else
-            echo -e "${red}Failed to adding user. You can see in error.logs why adding failed."
+            echo -e "${red}Failed to adding user. You can see in error.log why adding failed."
             _backToDefaultColor
             _rollBackMakingUser
         fi
@@ -313,14 +328,14 @@ function _rollBackMakingUser () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        sudo userdel -r part 2>> error.logs >/dev/null
+        _execute_command 'sudo userdel -r part'
                 
         if [ $? -eq 0 ]; then
             echo -e "${green}Rollback adding user done successfully"
             _backToDefaultColor
             _makeUser
         else
-            echo -e "${red}Failed to rollback adding user. You can see in error.logs why rollback failed."
+            echo -e "${red}Failed to rollback adding user. You can see in error.log why rollback failed."
             _backToDefaultColor
             exit 1
         fi
@@ -348,7 +363,7 @@ function _changeRootPassword(){
             echo -e "${green}Changing password of root user done successfully!"
             _backToDefaultColor
         else
-            echo -e "${red}Failed to changing password of root. You can see in error.logs why changing failed."
+            echo -e "${red}Failed to changing password of root. You can see in error.log why changing failed."
             _backToDefaultColor
         fi
 
@@ -379,7 +394,7 @@ function _writeProccessScript(){
             echo -e "${green}Script writing done successfully!"
             _backToDefaultColor
         else
-            echo -e "${red}Failed to writing script. You can see in error.logs why writing failed."
+            echo -e "${red}Failed to writing script. You can see in error.log why writing failed."
             _backToDefaultColor
             _rollBackWritingProcessScript
         fi
@@ -401,14 +416,14 @@ function _rollBackWritingProcessScript () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
 
-        sudo rm ProccessScript.sh
+        _execute_command 'sudo rm ProccessScript.sh'
 
         if [ $? -eq 0 ]; then
             echo -e "${green}Rollback script writing  done successfully!"
             _backToDefaultColor
             _writeProccessScript
         else
-            echo -e "${red}Failed to rollback script writing. You can see in error.logs why rollback failed."
+            echo -e "${red}Failed to rollback script writing. You can see in error.log why rollback failed."
             _backToDefaultColor
             exit 1
         fi
@@ -432,20 +447,20 @@ function _configSSH(){
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
-        sudo apt-get -y install openssh-server openssh-client 2>> error.logs >/dev/null
-        sudo apt-get -y install ssh  2>> error.logs >/dev/null
+        _execute_command 'sudo apt-get -y install openssh-server openssh-client'
+        _execute_command 'sudo apt-get -y install ssh'
         echo "Configuring SSH . . ."
 
         sleep 1
 
         _backupFile /etc/ssh/sshd_config
-        systemctl restart ssh 2>> error.logs >/dev/null
+        _execute_command 'sudo systemctl restart ssh'
 
         if [ $? -eq 0 ]; then
             echo -e "${green}SSH configuring done successfully!"
             _backToDefaultColor
         else
-            echo -e "${red}Failed to configuring SSH. You can see in error.logs why configuring failed."
+            echo -e "${red}Failed to configuring SSH. You can see in error.log why configuring failed."
             _backToDefaultColor
             _rollBackConfiguringSSH
         fi
@@ -468,15 +483,15 @@ function _rollBackConfiguringSSH () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
 
-        sudo apt-get -y purge openssh-server openssh-client 2>> error.logs >/dev/null
-        sudo apt-get -y purge ssh 2>> error.logs >/dev/null
+        _execute_command 'sudo apt-get -y purge openssh-server openssh-client'
+        _execute_command 'sudo apt-get -y purge ssh'
 
         if [ $? -eq 0 ]; then
             echo -e "${green}Rollback configuring SSH done successfully!"
             _backToDefaultColor
             _configSSH
         else
-            echo -e "${red}Failed to rollback configuring SSH. You can see in error.logs why rollback failed."
+            echo -e "${red}Failed to rollback configuring SSH. You can see in error.log why rollback failed."
             _backToDefaultColor
             exit 1
         fi
@@ -504,29 +519,29 @@ function _configNftable(){
 
         _backupFile /etc/nftables.conf
 
-        sudo apt purge nftables 2>> error.logs >/dev/null
+        _execute_command 'sudo apt purge nftables'
 
-        sudo apt install nftables 2>> error.logs >/dev/null
-        sudo systemctl start nftables 2>> error.logs >/dev/null
-        sudo systemctl enable nftables 2>> error.logs >/dev/null
-        sudo systemctl start nftables 2>> error.logs >/dev/null
-        sudo systemctl restart nftables 2>> error.logs >/dev/null
-        sudo nft add rule inet filter input tcp dport 22 accept
-        sudo nft list ruleset > /etc/nftables.conf
-        sudo nft -f /etc/nftables.conf
-        sudo systemctl restart nftables 2>> error.logs >/dev/null
-        sudo systemctl stop nftables
-        sudo systemctl disable nftables
-        sudo systemctl enable nftables
-        sudo systemctl start nftables
-        sudo systemctl restart nftables 2>> error.logs >/dev/null
+        _execute_command 'sudo apt install nftables'
+        _execute_command 'sudo systemctl start nftables'
+        _execute_command 'sudo systemctl enable nftables'
+        _execute_command 'sudo systemctl start nftables'
+        _execute_command 'sudo systemctl restart nftables'
+        _execute_command 'sudo nft add rule inet filter input tcp dport 22 accept'
+        _execute_command 'sudo nft list ruleset > /etc/nftables.conf'
+        _execute_command 'sudo nft -f /etc/nftables.conf'
+        _execute_command 'sudo systemctl restart nftables'
+        _execute_command 'sudo systemctl stop nftables'
+        _execute_command 'sudo systemctl disable nftables'
+        _execute_command 'sudo systemctl enable nftables'
+        _execute_command 'sudo systemctl start nftables'
+        _execute_command 'sudo systemctl restart nftables'
         
         
         if [ $? -eq 0 ]; then
             echo -e "${green}Firewall configuring done successfully!"
             _backToDefaultColor
         else
-            echo -e "${red}Failed to configuring firewall. You can see in error.logs why configuring failed."
+            echo -e "${red}Failed to configuring firewall. You can see in error.log why configuring failed."
             _backToDefaultColor
             _rollBackConfiguringNftable
         fi
@@ -549,18 +564,18 @@ function _rollBackConfiguringNftable () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
 
-        sudo systemctl restart nftables
-        sudo sudo nft delete rule inet filter input handle 4
-        sudo nft list ruleset > /etc/nftables.conf
-        sudo nft -f /etc/nftables.conf
-        sudo systemctl restart nftables
+        _execute_command 'sudo systemctl restart nftables'
+        _execute_command 'sudo sudo nft delete rule inet filter input handle 4'
+        _execute_command 'sudo nft list ruleset > /etc/nftables.conf'
+        _execute_command 'sudo nft -f /etc/nftables.conf'
+        _execute_command 'sudo systemctl restart nftables'
 
         if [ $? -eq 0 ]; then
             echo -e "${green}Rollback firewall configuring done successfully!"
             _backToDefaultColor
             _configNftable
         else
-            echo -e "${red}Failed to rollback firewall configuring. You can see in error.logs why rollback failed."
+            echo -e "${red}Failed to rollback firewall configuring. You can see in error.log why rollback failed."
             _backToDefaultColor
             exit 1
         fi
@@ -585,30 +600,30 @@ function _rollbackAllConfigurations () {
         
         repo_backup="$(pwd)/Backup/sources.list"
         if [[ -f $repo_backup ]]; then
-            cat "$repo_backup" | sudo tee /etc/apt/sources.list 2>> error.logs >/dev/null
-            sudo apt update 2>> error.logs >/dev/null
+            cat "$repo_backup" | sudo tee /etc/apt/sources.list
+            _execute_command 'sudo apt update'
 
             interface_backup="$(pwd)/Backup/interfaces"
-            sudo cat "$interface_backup" | sudo tee /etc/network/interfaces 2>> error.logs >/dev/null
-            systemctl restart networking 2>> error.logs >/dev/null
-            systemctl restart NetworkManager 2>> error.logs >/dev/null
+            sudo cat "$interface_backup" | sudo tee /etc/network/interfaces
+            _execute_command 'systemctl restart networking'
+            _execute_command 'systemctl restart NetworkManager'
 
             NTP_backup="$(pwd)/Backup/ntp.conf"
-            sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf 2>> error.logs >/dev/null
-            sudo systemctl restart ntp 2>> error.logs >/dev/null
+            sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf
+            _execute_command 'sudo systemctl restart ntp'
 
-            sudo userdel -r part 2>> error.logs >/dev/null
+            _execute_command 'sudo userdel -r part'
 
-            sudo rm ProccessScript.sh 2>> error.logs >/dev/null
+            _execute_command 'sudo rm ProccessScript.sh'
 
-            sudo apt-get -y purge openssh-server openssh-client 2>> error.logs >/dev/null
-            sudo apt-get -y purge ssh 2>> error.logs >/dev/null
+            _execute_command 'sudo apt-get -y purge openssh-server openssh-client'
+            _execute_command 'sudo apt-get -y purge ssh'
 
-            sudo systemctl restart nftables
-            sudo sudo nft delete rule inet filter input handle 4
-            sudo nft list ruleset > /etc/nftables.conf
-            sudo nft -f /etc/nftables.conf
-            sudo systemctl restart nftables
+            _execute_command 'sudo systemctl restart nftables'
+            _execute_command 'sudo sudo nft delete rule inet filter input handle 4'
+            _execute_command 'sudo nft list ruleset > /etc/nftables.conf'
+            _execute_command 'sudo nft -f /etc/nftables.conf'
+            _execute_command 'sudo systemctl restart nftables'
 
             echo -e "${green}Rollback all configurations done successfully."
 
@@ -635,34 +650,34 @@ function _rollbackAllConfigurationsSIGINT () {
         
         repo_backup="$(pwd)/Backup/sources.list"
         if [[ -f $repo_backup ]]; then
-            cat "$repo_backup" | sudo tee /etc/apt/sources.list 2>> error.logs >/dev/null
-            sudo apt update 2>> error.logs >/dev/null
+            cat "$repo_backup" | sudo tee /etc/apt/sources.list
+            _execute_command 'sudo apt update'
 
             interface_backup="$(pwd)/Backup/interfaces"
             if [[ -f $interface_backup ]]; then
-                sudo cat "$interface_backup" | sudo tee /etc/network/interfaces 2>> error.logs >/dev/null
-                systemctl restart networking 2>> error.logs >/dev/null
-                systemctl restart NetworkManager 2>> error.logs >/dev/null
+                sudo cat "$interface_backup" | sudo tee /etc/network/interfaces
+                _execute_command 'sudo systemctl restart networking'
+                _execute_command 'sudo systemctl restart NetworkManager'
             fi
 
             if [[ -f $interface_backup ]]; then
                 NTP_backup="$(pwd)/Backup/ntp.conf"
-                sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf 2>> error.logs >/dev/null
-                sudo systemctl restart ntp 2>> error.logs >/dev/null
+                sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf
+                _execute_command 'sudo systemctl restart ntp'
             fi
 
-            sudo userdel -r part 2>> error.logs >/dev/null
+            _execute_command 'sudo userdel -r part'
 
-            sudo rm ProccessScript.sh 2>> error.logs >/dev/null
+            _execute_command 'sudo rm ProccessScript.sh'
 
-            sudo apt-get -y purge openssh-server openssh-client 2>> error.logs >/dev/null
-            sudo apt-get -y purge ssh 2>> error.logs >/dev/null
+            _execute_command 'sudo apt-get -y purge openssh-server openssh-client'
+            _execute_command 'sudo apt-get -y purge ssh'
 
-            sudo systemctl restart nftables
-            sudo sudo nft delete rule inet filter input handle 4
-            sudo nft list ruleset > /etc/nftables.conf
-            sudo nft -f /etc/nftables.conf
-            sudo systemctl restart nftables
+            _execute_command 'sudo systemctl restart nftables'
+            _execute_command 'sudo sudo nft delete rule inet filter input handle 4'
+            _execute_command 'sudo nft list ruleset > /etc/nftables.conf'
+            _execute_command 'sudo nft -f /etc/nftables.conf'
+            _execute_command 'sudo systemctl restart nftables'
 
             echo -e "${green}Rollback all configurations done successfully."
 
@@ -682,7 +697,6 @@ function _rollbackAllConfigurationsSIGINT () {
 
 actionA() {
     echo "Running Script ..."
-    _makeErrorLog
     _deleteSubFolders
     _makeBackupFolder
     _setRepository
