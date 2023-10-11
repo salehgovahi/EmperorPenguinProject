@@ -75,7 +75,7 @@ function _setRepository() {
         if [[ -f $repo_file ]]; then
             
             _backupFile /etc/apt/sources.list
-            cat "$repo_file" | sudo tee /etc/apt/sources.list
+            cat "$repo_file" | sudo tee /etc/apt/sources.list >/dev/null 2>&1
             _execute_command 'sudo apt update'
             
             if [ $? -eq 0 ]; then
@@ -110,7 +110,7 @@ function _rollBackSettingRepository () {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         repo_backup="$(pwd)/Backup/sources.list"
-        cat "$repo_backup" | sudo tee /etc/apt/sources.list
+        cat "$repo_backup" | sudo tee /etc/apt/sources.list >/dev/null 2>&1
         _execute_command 'sudo apt update'
                 
         if [ $? -eq 0 ]; then
