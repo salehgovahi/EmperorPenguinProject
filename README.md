@@ -16,7 +16,7 @@ To run this script on your linux system you can easily run it with this command:
 
 ### Phase 2:
 
-On host
+On Host
 
     sudo bash -c 'bash <(curl -s https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/SSHToVirtualMachine.sh)'
 
@@ -33,7 +33,10 @@ On Virtual Machine
     
     curl -sSfL https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/Phase3/Webserver.py | python3 -
 
-##
+On Host you can curl to the ip of virtual machine in 3 selection:
+    1./run-script/
+    2./check-script/
+    3./rollback/
 
 ### Phase 1:
 
