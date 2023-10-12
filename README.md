@@ -39,13 +39,7 @@ On Host you can curl to the ip of virtual machine in 3 selection:
 - ./check-script/
 - ./rollback/
 
-### Phase 1:
-
-    
-    sudo bash -c 'bash <(curl -s https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/MainScriptPhase1.sh)'
-
-##
-
+#
 
 [About project](https://github.com/SalehGovahi/EmperorPenguinProject/wiki)
 	
