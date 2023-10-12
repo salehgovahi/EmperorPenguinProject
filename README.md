@@ -10,9 +10,38 @@ To run this script on your linux system you can easily run it with this command:
 ### Phase 1:
 
     
-    wget -O - https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/MainScriptPhase1.sh | sudo bash
+    sudo bash -c 'bash <(curl -s https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/MainScriptPhase1.sh)'
 
 ## 
+
+### Phase 2:
+
+On host
+
+    sudo bash -c 'bash <(curl -s https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/SSHToVirtualMachine.sh)'
+
+
+On Virtual Machine
+
+    sudo bash -c 'bash <(curl -s https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/MainScriptPhase2.sh)'
+
+##
+
+### Phase 3:
+
+On Virtual Machine
+    
+    curl -sSfL https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/Phase3/Webserver.py | python3 -
+
+##
+
+### Phase 1:
+
+    
+    sudo bash -c 'bash <(curl -s https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/main/MainScriptPhase1.sh)'
+
+##
+
 
 [About project](https://github.com/SalehGovahi/EmperorPenguinProject/wiki)
 	
