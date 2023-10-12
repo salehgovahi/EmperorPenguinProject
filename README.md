@@ -35,8 +35,8 @@ On Virtual Machine
 
 On Host you can curl to the ip of virtual machine in 3 selection:
     1./run-script/
-    2./check-script/
-    3./rollback/
+    1./check-script/
+    1./rollback/
 
 ### Phase 1:
 
