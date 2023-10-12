@@ -34,6 +34,7 @@ On Virtual Machine
     curl -sSfL https://raw.githubusercontent.com/SalehGovahi/EmperorPenguinProject/Phase3/Webserver.py | python3 -
 
 On Host you can curl to the ip of virtual machine in 3 selection:
+
     1./run-script/
     1./check-script/
     1./rollback/
