@@ -146,7 +146,7 @@ function _configInterface() {
         if [[ -f $dns_file ]]; then
             
             _backupFile /etc/network/interfaces
-            sudo cat "$dns_file" | sudo tee /etc/network/interfaces
+            sudo cat "$dns_file" | sudo tee /etc/network/interfaces >/dev/null 2>&1
             _execute_command 'sudo systemctl restart networking'
             _execute_command 'sudo systemctl restart NetworkManager'
             
@@ -182,7 +182,7 @@ function _rollBackConfiguringInterface () {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         interface_backup="$(pwd)/Backup/interfaces"
-        sudo cat "$interface_backup" | sudo tee /etc/network/interfaces
+        sudo cat "$interface_backup" | sudo tee /etc/network/interfaces >/dev/null 2>&1
         _execute_command 'sudo systemctl restart networking'
         _execute_command 'sudo systemctl restart NetworkManager'
                 
@@ -221,7 +221,7 @@ function _setNTP(){
             
             _execute_command 'sudo apt install ntp'
             _backupFile /etc/ntp.conf
-            cat "$ntp_file" | sudo tee /etc/ntp.conf
+            cat "$ntp_file" | sudo tee /etc/ntp.conf >/dev/null 2>&1
             _execute_command 'sudo systemctl restart ntp'
 
             if [ $? -eq 0 ]; then
@@ -255,7 +255,7 @@ function _rollBackSettingNTP () {
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
         
         NTP_backup="$(pwd)/Backup/ntp.conf"
-        sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf
+        sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf >/dev/null 2>&1
         _execute_command 'sudo systemctl restart ntp'
                 
         if [ $? -eq 0 ]; then
@@ -600,16 +600,16 @@ function _rollbackAllConfigurations () {
         
         repo_backup="$(pwd)/Backup/sources.list"
         if [[ -f $repo_backup ]]; then
-            cat "$repo_backup" | sudo tee /etc/apt/sources.list
+            cat "$repo_backup" | sudo tee /etc/apt/sources.list >/dev/null 2>&1
             _execute_command 'sudo apt update'
 
             interface_backup="$(pwd)/Backup/interfaces"
-            sudo cat "$interface_backup" | sudo tee /etc/network/interfaces
+            sudo cat "$interface_backup" | sudo tee /etc/network/interfaces >/dev/null 2>&1
             _execute_command 'systemctl restart networking'
             _execute_command 'systemctl restart NetworkManager'
 
             NTP_backup="$(pwd)/Backup/ntp.conf"
-            sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf
+            sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf >/dev/null 2>&1
             _execute_command 'sudo systemctl restart ntp'
 
             _execute_command 'sudo userdel -r part'
@@ -650,19 +650,19 @@ function _rollbackAllConfigurationsSIGINT () {
         
         repo_backup="$(pwd)/Backup/sources.list"
         if [[ -f $repo_backup ]]; then
-            cat "$repo_backup" | sudo tee /etc/apt/sources.list
+            cat "$repo_backup" | sudo tee /etc/apt/sources.list >/dev/null 2>&1
             _execute_command 'sudo apt update'
 
             interface_backup="$(pwd)/Backup/interfaces"
             if [[ -f $interface_backup ]]; then
-                sudo cat "$interface_backup" | sudo tee /etc/network/interfaces
+                sudo cat "$interface_backup" | sudo tee /etc/network/interfaces >/dev/null 2>&1
                 _execute_command 'sudo systemctl restart networking'
                 _execute_command 'sudo systemctl restart NetworkManager'
             fi
 
             if [[ -f $interface_backup ]]; then
                 NTP_backup="$(pwd)/Backup/ntp.conf"
-                sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf
+                sudo cat "$NTP_backup" | sudo tee /etc/ntp.conf >/dev/null 2>&1
                 _execute_command 'sudo systemctl restart ntp'
             fi
 
