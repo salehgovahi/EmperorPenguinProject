@@ -718,8 +718,9 @@ actionB() {
 }
 
 actionC() {
-    sudo xdg-open https://stackoverflow.com
+    url="https://github.com/SalehGovahi/EmperorPenguinProject/wiki"
 
+    xdg-open "$url"
 
     return 1
 }
