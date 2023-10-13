@@ -718,12 +718,16 @@ actionB() {
 }
 
 actionC() {
+    clear
     url="https://github.com/SalehGovahi/EmperorPenguinProject/wiki"
+    link_text="See project's wiki"
 
-    xdg-open "$url"
+    sudo echo -e "To visit the website, \e]8;;$url\e\\$link_text\e]8;;\e\\"
 
-    return 1
+    sleep 10
+    return 0
 }
+
 
 
 actionX() {
