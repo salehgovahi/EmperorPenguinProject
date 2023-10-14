@@ -101,7 +101,7 @@ function _installGolangCompiler(){
         
     _execute_command 'sudo rm -rf /usr/local/go'
     #_execute_command 'wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz'
-    _execute_command 'sudo tar -xvf go1.21.0.linux-amd64.tar.gz'
+    _execute_command 'sudo tar -xvf go1.21.3.linux-amd64.tar.gz'
     _execute_command 'sudo mv go /usr/local'
 
     if ! [ $? -eq 0 ]; then
