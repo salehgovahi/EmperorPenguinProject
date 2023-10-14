@@ -358,6 +358,12 @@ function _rollbackRunningImgProxy() {
     fi
 }
 
+function _set403DNS () {
+    sudo bash -c 'cat << EOF > /etc/resolv.conf
+nameserver 8.8.8.8
+EOF'
+}
+
 function _setImgProxyUnitFile () {
 
     echo ""
