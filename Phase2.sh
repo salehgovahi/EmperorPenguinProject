@@ -505,8 +505,9 @@ function _accessiblePort8080 () {
 
     if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
 
-        _execute_command 'sudo apt-get -y purge nftables'
-        _execute_command 'sudo apt-get -y install nftables'
+        #_execute_command 'sudo apt-get -y purge nftables'
+	_execute_command 'sudo systemctl disable nftables'
+        _execute_command 'sudo systemctl stop nftables'
         _execute_command 'sudo systemctl enable nftables'
         _execute_command 'sudo systemctl start nftables'
         # _execute_command 'sleep 5'
